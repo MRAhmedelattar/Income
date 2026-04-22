@@ -1,0 +1,124 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+
+
+model Config {
+  id             Int     @id @default(autoincrement())
+  universityName String?
+  universityLogo String?
+  facultyName    String?
+  facultyLogo    String?
+}
+
+model Fund {
+  id         String @id
+  name       String
+  orderIndex Int    @default(0)
+  items      Item[]
+}
+
+model Item {
+  id           String                   @id
+  name         String
+  defaultValue Float                    @default(0)
+  isEditable   Boolean                  @default(false)
+  type         String                   @default("budget")
+  orderIndex   Int                      @default(0)
+  fundId       String?
+  revenueId    String?
+  budgetItemId String?
+  collections  CollectionDistribution[]
+  fund         Fund?                    @relation(fields: [fundId], references: [id])
+  revenue      Revenue?                 @relation(fields: [revenueId], references: [id])
+  budgetItem   BudgetItem?              @relation(fields: [budgetItemId], references: [id])
+  revenues     RevenueItem[]
+}
+
+model Revenue {
+  id          String        @id
+  title       String
+  type        String        @default("general")
+  date        String?
+  orderIndex  Int           @default(0)
+  items       RevenueItem[]
+  itemRefs    Item[]
+  collections Collection[]
+}
+
+model RevenueItem {
+  id        Int     @id @default(autoincrement())
+  revenueId String
+  itemId    String
+  amount    Float   @default(0)
+  item      Item    @relation(fields: [itemId], references: [id])
+  revenue   Revenue @relation(fields: [revenueId], references: [id], onDelete: Cascade)
+
+  @@unique([revenueId, itemId])
+}
+
+model Collection {
+  id                String                   @id
+  registrationDate  String?
+  paymentDate       String?
+  receiptNumber     String?
+  name              String?
+  total             Float                    @default(0)
+  selectedRevenueId String?
+  distribution      CollectionDistribution[]
+  revenue           Revenue?                 @relation(fields: [selectedRevenueId], references: [id])
+}
+
+model CollectionDistribution {
+  id           Int        @id @default(autoincrement())
+  collectionId String
+  itemId       String
+  amount       Float      @default(0)
+  item         Item       @relation(fields: [itemId], references: [id])
+  collection   Collection @relation(fields: [collectionId], references: [id], onDelete: Cascade)
+
+  @@unique([collectionId, itemId])
+}
+
+model User {
+  id          String  @id
+  username    String  @unique
+  password    String
+  role        String  @default("user")
+  permissions String?
+  createdAt   String?
+}
+
+model Deduction {
+  id         String @id
+  name       String
+  percentage Float
+  orderIndex Int    @default(0)
+}
+
+model Signature {
+  id         String  @id
+  title      String?
+  name       String?
+  orderIndex Int     @default(0)
+}
+
+model BudgetItem {
+  id         String @id
+  name       String
+  orderIndex Int    @default(0)
+  items      Item[]
+}
+
+model BudgetDeduction {
+  id         String @id
+  name       String
+  percentage Float
+  orderIndex Int    @default(0)
+}

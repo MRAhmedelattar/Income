@@ -1,0 +1,97 @@
+{
+  "name": "revenue-system-app",
+  "version": "1.0.64",
+  "description": "Desktop Revenue Collection App using React and Electron",
+  "main": "main.js",
+  "scripts": {
+    "start": "react-scripts start",
+    "build": "react-scripts build",
+    "test": "react-scripts test",
+    "eject": "react-scripts eject",
+    "electron:start": "electron .",
+    "electron-dev": "concurrently \"npm run start\" \"wait-on http://localhost:3000 && cross-env ELECTRON_START_URL=http://localhost:3000 electron .\"",
+    "electron-build": "npm run prepare-backend && npm run rebuild-backend-native && npm run build && electron-builder",
+    "dev": "npm run electron-dev",
+    "db:seed": "cd backend && node prisma/seed.js",
+    "prepare-backend": "cd backend && npm ci --production && npx prisma generate",
+"rebuild-backend-native":"cd backend && npx prisma generate && npx electron-rebuild -f -w better-sqlite3 -v 30.0.1 --arch ia32 && npx electron-rebuild -f -w better-sqlite3 -v 30.0.1 --arch x64"
+  },
+  "dependencies": {
+    "@prisma/client": "^6.19.0",
+    "better-sqlite3": "^9.4.3",
+    "cors": "^2.8.5",
+    "electron-is-dev": "^3.0.1",
+    "electron-log": "^5.1.2",
+    "express": "^5.1.0",
+    "jspdf": "^3.0.3",
+    "jspdf-autotable": "^5.0.2",
+    "prisma": "^6.19.0",
+    "react": "^18.2.0",
+    "react-datepicker": "^9.1.0",
+    "react-dom": "^18.2.0",
+    "react-scripts": "5.0.1",
+    "tailwindcss": "^3.4.4",
+    "xlsx": "^0.18.5"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2",
+    "cross-env": "^7.0.3",
+    "electron": "^30.0.1",
+    "electron-builder": "^24.13.3",
+    "wait-on": "^7.2.0"
+  },
+  "build": {
+    "appId": "com.yourcompany.revenuesystem",
+    "productName": "نظام إدارة الايرادات والمتحصلات",
+    "asar": true,
+    "asarUnpack": [
+      "backend/node_modules/**"
+    ],
+    "extraResources": [
+      {
+        "from": "backend/",
+        "to": "backend/",
+        "filter": [
+          "**/*"
+        ]
+      }
+    ],
+    "files": [
+      "build/**/*",
+      "public/**/*",
+      "main.js",
+      "preload.js"
+    ],
+    "directories": {
+      "buildResources": "assets",
+      "output": "release"
+    },
+    "win": {
+      "target": [
+        "nsis:ia32",
+        "nsis:x64"
+      ],
+      "icon": "assets/icon.ico"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "perMachine": false
+    }
+  },
+  "homepage": "./",
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  }
+}
